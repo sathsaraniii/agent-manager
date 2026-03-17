@@ -79,7 +79,7 @@ func (t *Toolsets) registerTraceTools(server *gomcp.Server) {
 		Name:        "list_traces",
 		Description: "List recent traces for an agent in a time window (summary view).",
 		InputSchema: createSchema(map[string]any{
-			"org_name":     stringProperty("Required. Organization name."),
+			"org_name":     stringProperty("optional. Organization name."),
 			"project_name": stringProperty("Required. Project name where the agent exists."),
 			"agent_name":   stringProperty("Required. Agent name to check traces for."),
 			"environment":  stringProperty("Optional. Environment name."),
