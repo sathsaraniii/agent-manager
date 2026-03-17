@@ -80,3 +80,4 @@ __pycache__/
 .deepeval/
 .claude/
 local-scripts/
+agent-manager-service/mcp/ss.json

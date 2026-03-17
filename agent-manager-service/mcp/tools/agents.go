@@ -119,19 +119,19 @@ func (t *Toolsets) registerAgentTools(server *gomcp.Server) {
 			"description":  stringProperty("Optional Short description about what the agent does."),
 
 			"repository_url": stringProperty("Required. GitHub root repository URL. Do not enter .git and the end of repo name(eg: https://github.com/user/repo)"),
-			"branch":         stringProperty("Required. Github repository branch name."),
-			"app_path":       stringProperty("Required. Path of the project where agent code lives within the repository (use / for root. specify path if not)."),
+			"branch":         stringProperty("Optional. Github repository branch name (default: main)."),
+			"app_path":       stringProperty("Optional. Path of the project where agent code lives within the repository (default: /)."),
 
-			"language_version": stringProperty("Required. Python version (eg: 3.11, 20, 1.21)."),
-			"run_command":      stringProperty("Required. Start command to run the agent. Correctly identify the entry file and required command. If not the agent build and deployment will fail."),
+			"language_version": stringProperty("Optional. Python version (default: 3.11)."),
+			"run_command":      stringProperty("Optional. Start command to run the agent (default: python main.py)."),
 
-			"interface_type": enumProperty("Required. API interface type of the agent. : DEFAULT(standard chat interface with /chat endpoint on port 8000) or CUSTOM(Custom API interface with user specified OpenAPI specification and port configuration).", []string{"DEFAULT", "CUSTOM"}),
+			"interface_type": enumProperty("Optional. API interface type of the agent. DEFAULT (standard chat interface with /chat endpoint on port 8000) or CUSTOM (custom API with user-provided OpenAPI spec). Default: DEFAULT.", []string{"DEFAULT", "CUSTOM"}),
 			"port":           intProperty("Required when interface_type is CUSTOM. Port number where the agent will be listening."),
-			"base_path":      stringProperty("Required when interface_type is CUSTOM. API base path (e.g., / or /api/v1)"),
+			"base_path":      stringProperty("Optional. API base path (default: /). Required when interface_type is CUSTOM."),
 			"openapi_path":   stringProperty("Required when interface_type is CUSTOM. OpenAPI specification file path within the repository (must start with /)."),
 
 			"enable_auto_instrumentation": boolProperty("Automatically enables OTEL tracing instrumentation to your agent for observability."),
-			"env": arrayProperty("Required. Environment variables and other configurations for the agent.(eg: api keys, database URLs, support service URLs). Can be obtained from the .env file in the project repository", map[string]any{
+			"env": arrayProperty("Optional. Environment variables and other configurations for the agent (from the .env file in the project repository).", map[string]any{
 				"type": "object",
 				"properties": map[string]any{
 					"key":   stringProperty("Environment variable key."),
@@ -139,7 +139,7 @@ func (t *Toolsets) registerAgentTools(server *gomcp.Server) {
 				},
 				"required": []string{"key", "value"},
 			}),
-		}, []string{"project_name", "display_name", "repository_url", "branch", "app_path", "language_version", "run_command", "interface_type", "env"}),
+		}, []string{"project_name", "display_name", "repository_url"}),
 	}, createInternalAgentPython(t.AgentToolset, t.DefaultOrg))
 
 	gomcp.AddTool(server, &gomcp.Tool{
@@ -152,17 +152,17 @@ func (t *Toolsets) registerAgentTools(server *gomcp.Server) {
 			"description":  stringProperty("Optional. Short description about what the agent does."),
 
 			"repository_url":  stringProperty("Required. GitHub repository URL (e.g., https://github.com/owner/repo)."),
-			"branch":          stringProperty("Required. Repository branch name."),
-			"app_path":        stringProperty("Required. Path within the repository (use / for root)."),
-			"dockerfile_path": stringProperty("Required. Path to Dockerfile in repo (must start with /)."),
+			"branch":          stringProperty("Optional. Repository branch name (default: main)."),
+			"app_path":        stringProperty("Optional. Path within the repository (default: /)."),
+			"dockerfile_path": stringProperty("Optional. Path to Dockerfile in repo (default: /Dockerfile)."),
 
-			"interface_type": enumProperty("Required. DEFAULT (chat API on /chat, port 8000) or CUSTOM (user-provided OpenAPI).", []string{"DEFAULT", "CUSTOM"}),
+			"interface_type": enumProperty("Optional. DEFAULT (chat API on /chat, port 8000) or CUSTOM (user-provided OpenAPI). Default: DEFAULT.", []string{"DEFAULT", "CUSTOM"}),
 			"port":           intProperty("Required when interface_type is CUSTOM. Port number where the agent listens."),
-			"base_path":      stringProperty("Required when interface_type is CUSTOM. API base path (e.g., / or /api/v1)."),
+			"base_path":      stringProperty("Optional. API base path (default: /). Required when interface_type is CUSTOM."),
 			"openapi_path":   stringProperty("Required when interface_type is CUSTOM. OpenAPI spec file path within the repo (must start with /)."),
 
 			"enable_auto_instrumentation": boolProperty("Optional. Enable OTEL auto instrumentation for observability."),
-			"env": arrayProperty("Required. Environment variables (from .env).", map[string]any{
+			"env": arrayProperty("Optional. Environment variables (from .env).", map[string]any{
 				"type": "object",
 				"properties": map[string]any{
 					"key":   stringProperty("Environment variable key."),
@@ -170,7 +170,7 @@ func (t *Toolsets) registerAgentTools(server *gomcp.Server) {
 				},
 				"required": []string{"key", "value"},
 			}),
-		}, []string{"project_name", "display_name", "repository_url", "branch", "app_path", "dockerfile_path", "interface_type", "env"}),
+		}, []string{"project_name", "display_name", "repository_url"}),
 	}, createInternalAgentDocker(t.AgentToolset, t.DefaultOrg))
 
 	gomcp.AddTool(server, &gomcp.Tool{
@@ -224,23 +224,15 @@ func createInternalAgentPython(handler AgentToolsetHandler, defaultOrg string) f
 		if strings.TrimSpace(input.RepositoryURL) == "" {
 			return nil, nil, fmt.Errorf("repository_url is required")
 		}
-		if strings.TrimSpace(input.Branch) == "" {
-			return nil, nil, fmt.Errorf("branch is required")
-		}
-		if strings.TrimSpace(input.AppPath) == "" {
-			return nil, nil, fmt.Errorf("app_path is required")
-		}
+
 		if strings.TrimSpace(input.LanguageVersion) == "" {
-			return nil, nil, fmt.Errorf("language_version is required")
+			input.LanguageVersion = "3.11"
 		}
 		if strings.TrimSpace(input.RunCommand) == "" {
-			return nil, nil, fmt.Errorf("run_command is required")
+			input.RunCommand = "python main.py"
 		}
 		if strings.TrimSpace(input.InterfaceType) == "" {
-			return nil, nil, fmt.Errorf("interface_type is required")
-		}
-		if input.Env == nil {
-			return nil, nil, fmt.Errorf("env is required")
+			input.InterfaceType = "DEFAULT"
 		}
 
 		orgName := resolveOrgName(defaultOrg, input.OrgName)
@@ -306,20 +298,12 @@ func createInternalAgentDocker(handler AgentToolsetHandler, defaultOrg string) f
 		if strings.TrimSpace(input.RepositoryURL) == "" {
 			return nil, nil, fmt.Errorf("repository_url is required")
 		}
-		if strings.TrimSpace(input.Branch) == "" {
-			return nil, nil, fmt.Errorf("branch is required")
-		}
-		if strings.TrimSpace(input.AppPath) == "" {
-			return nil, nil, fmt.Errorf("app_path is required")
-		}
+
 		if strings.TrimSpace(input.DockerfilePath) == "" {
-			return nil, nil, fmt.Errorf("dockerfile_path is required")
+			input.DockerfilePath = "/Dockerfile"
 		}
 		if strings.TrimSpace(input.InterfaceType) == "" {
-			return nil, nil, fmt.Errorf("interface_type is required")
-		}
-		if input.Env == nil {
-			return nil, nil, fmt.Errorf("env is required")
+			input.InterfaceType = "DEFAULT"
 		}
 
 		orgName := resolveOrgName(defaultOrg, input.OrgName)
@@ -737,7 +721,7 @@ func buildInputInterface(interfaceType string, input internalAgentInput) (*spec.
 	}
 	basePath := strings.TrimSpace(input.BasePath)
 	if basePath == "" {
-		return nil, fmt.Errorf("base_path is required for CUSTOM interface")
+		basePath = "/"
 	}
 	openAPIPath := strings.TrimSpace(input.OpenAPIPath)
 	if openAPIPath == "" {
