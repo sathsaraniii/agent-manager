@@ -139,7 +139,7 @@ func (t *Toolsets) registerAgentTools(server *gomcp.Server) {
 				},
 				"required": []string{"key", "value"},
 			}),
-		}, []string{"project_name", "display_name", "repository_url"}),
+		}, []string{"project_name", "display_name", "repository_url", "branch", "app_path", "language_version", "run_command", "interface_type", "env"}),
 	}, createInternalAgentPython(t.AgentToolset, t.DefaultOrg))
 
 	gomcp.AddTool(server, &gomcp.Tool{
@@ -170,7 +170,7 @@ func (t *Toolsets) registerAgentTools(server *gomcp.Server) {
 				},
 				"required": []string{"key", "value"},
 			}),
-		}, []string{"project_name", "display_name", "repository_url"}),
+		}, []string{"project_name", "display_name", "repository_url", "branch", "app_path", "dockerfile_path", "interface_type", "env"}),
 	}, createInternalAgentDocker(t.AgentToolset, t.DefaultOrg))
 
 	gomcp.AddTool(server, &gomcp.Tool{

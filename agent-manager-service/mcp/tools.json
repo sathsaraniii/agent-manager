@@ -1,0 +1,572 @@
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "result": {
+    "tools": [
+      {
+        "description": "Register an agent as externally-hosted and return setup steps for enabling instrumentation. This will allow getting observalibity and evaluation for the agents",
+        "inputSchema": {
+          "properties": {
+            "description": {
+              "description": "Optional. Short description about what the agent does.",
+              "type": "string"
+            },
+            "display_name": {
+              "description": "Required. Human-readable display name for the agent.",
+              "type": "string"
+            },
+            "language": {
+              "description": "Required. Agent language for setup guide (python or ballerina).",
+              "type": "string"
+            },
+            "org_name": {
+              "description": "Optional. Organization name.",
+              "type": "string"
+            },
+            "project_name": {
+              "description": "Required. Project name where the agent will be registered.",
+              "type": "string"
+            }
+          },
+          "required": ["project_name", "display_name", "language"],
+          "type": "object"
+        },
+        "name": "create_external_agent"
+      },
+      {
+        "description": "Register an agent as platform-hosted (internal) Docker agent. This will trigger an initial build automatically and return the created agent details.",
+        "inputSchema": {
+          "properties": {
+            "app_path": {
+              "description": "Optional. Path within the repository (default: /).",
+              "type": "string"
+            },
+            "base_path": {
+              "description": "Optional. API base path (default: /). Required when interface_type is CUSTOM.",
+              "type": "string"
+            },
+            "branch": {
+              "description": "Optional. Repository branch name (default: main).",
+              "type": "string"
+            },
+            "description": {
+              "description": "Optional. Short description about what the agent does.",
+              "type": "string"
+            },
+            "display_name": {
+              "description": "Required. Human-readable display name for the agent.",
+              "type": "string"
+            },
+            "dockerfile_path": {
+              "description": "Optional. Path to Dockerfile in repo (default: /Dockerfile).",
+              "type": "string"
+            },
+            "enable_auto_instrumentation": {
+              "description": "Optional. Enable OTEL auto instrumentation for observability.",
+              "type": "boolean"
+            },
+            "env": {
+              "description": "Optional. Environment variables (from .env).",
+              "items": {
+                "properties": {
+                  "key": {
+                    "description": "Environment variable key.",
+                    "type": "string"
+                  },
+                  "value": {
+                    "description": "Environment variable value.",
+                    "type": "string"
+                  }
+                },
+                "required": ["key", "value"],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "interface_type": {
+              "description": "Optional. DEFAULT (chat API on /chat, port 8000) or CUSTOM (user-provided OpenAPI). Default: DEFAULT.",
+              "enum": ["DEFAULT", "CUSTOM"],
+              "type": "string"
+            },
+            "openapi_path": {
+              "description": "Required when interface_type is CUSTOM. OpenAPI spec file path within the repo (must start with /).",
+              "type": "string"
+            },
+            "org_name": {
+              "description": "Optional. Organization name.",
+              "type": "string"
+            },
+            "port": {
+              "description": "Required when interface_type is CUSTOM. Port number where the agent listens.",
+              "type": "integer"
+            },
+            "project_name": {
+              "description": "Required. Project name where the agent will be created.",
+              "type": "string"
+            },
+            "repository_url": {
+              "description": "Required. GitHub repository URL (e.g., https://github.com/owner/repo).",
+              "type": "string"
+            }
+          },
+          "required": [
+            "project_name",
+            "display_name",
+            "repository_url",
+            "branch",
+            "app_path",
+            "dockerfile_path",
+            "interface_type",
+            "env"
+          ],
+          "type": "object"
+        },
+        "name": "create_internal_agent_docker"
+      },
+      {
+        "description": "Register an agent as a platform-hosted (internal) Python buildpack agent. This will trigger an initial build automatically and return the created agent details.",
+        "inputSchema": {
+          "properties": {
+            "app_path": {
+              "description": "Optional. Path of the project where agent code lives within the repository (default: /).",
+              "type": "string"
+            },
+            "base_path": {
+              "description": "Optional. API base path (default: /). Required when interface_type is CUSTOM.",
+              "type": "string"
+            },
+            "branch": {
+              "description": "Optional. Github repository branch name (default: main).",
+              "type": "string"
+            },
+            "description": {
+              "description": "Optional Short description about what the agent does.",
+              "type": "string"
+            },
+            "display_name": {
+              "description": "Required. Human-readable display name for the agent.",
+              "type": "string"
+            },
+            "enable_auto_instrumentation": {
+              "description": "Automatically enables OTEL tracing instrumentation to your agent for observability.",
+              "type": "boolean"
+            },
+            "env": {
+              "description": "Optional. Environment variables and other configurations for the agent (from the .env file in the project repository).",
+              "items": {
+                "properties": {
+                  "key": {
+                    "description": "Environment variable key.",
+                    "type": "string"
+                  },
+                  "value": {
+                    "description": "Environment variable value.",
+                    "type": "string"
+                  }
+                },
+                "required": ["key", "value"],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "interface_type": {
+              "description": "Optional. API interface type of the agent. DEFAULT (standard chat interface with /chat endpoint on port 8000) or CUSTOM (custom API with user-provided OpenAPI spec). Default: DEFAULT.",
+              "enum": ["DEFAULT", "CUSTOM"],
+              "type": "string"
+            },
+            "language_version": {
+              "description": "Optional. Python version (default: 3.11).",
+              "type": "string"
+            },
+            "openapi_path": {
+              "description": "Required when interface_type is CUSTOM. OpenAPI specification file path within the repository (must start with /).",
+              "type": "string"
+            },
+            "org_name": {
+              "description": "Optional. Organization name.",
+              "type": "string"
+            },
+            "port": {
+              "description": "Required when interface_type is CUSTOM. Port number where the agent will be listening.",
+              "type": "integer"
+            },
+            "project_name": {
+              "description": "Required. Project name where the agent will be created.",
+              "type": "string"
+            },
+            "repository_url": {
+              "description": "Required. GitHub root repository URL. Do not enter .git and the end of repo name(eg: https://github.com/user/repo)",
+              "type": "string"
+            },
+            "run_command": {
+              "description": "Optional. Start command to run the agent (default: python main.py).",
+              "type": "string"
+            }
+          },
+          "required": [
+            "project_name",
+            "display_name",
+            "repository_url",
+            "branch",
+            "app_path",
+            "language_version",
+            "run_command",
+            "interface_type",
+            "env"
+          ],
+          "type": "object"
+        },
+        "name": "create_internal_agent_python"
+      },
+      {
+        "description": "Fetch build logs for a specific build of an internal agent.",
+        "inputSchema": {
+          "properties": {
+            "agent_name": {
+              "description": "Required. Agent name that owns the build.",
+              "type": "string"
+            },
+            "build_name": {
+              "description": "Required. Build name to fetch logs for.",
+              "type": "string"
+            },
+            "org_name": {
+              "description": "Required. Organization name.",
+              "type": "string"
+            },
+            "project_name": {
+              "description": "Required. Project name where the agent exists.",
+              "type": "string"
+            }
+          },
+          "required": ["project_name", "agent_name", "build_name"],
+          "type": "object"
+        },
+        "name": "get_build_logs"
+      },
+      {
+        "description": "Return the Agent Manager documentation sitemap URL. use when further details about the agent manager platform or its capabilities are needed.",
+        "inputSchema": { "properties": {}, "type": "object" },
+        "name": "get_docs_sitemap"
+      },
+      {
+        "description": "Fetch runtime logs for an agent. Facilitate time range, log level, or search filtering if needed.",
+        "inputSchema": {
+          "properties": {
+            "agent_name": {
+              "description": "Required. Agent name to fetch runtime logs for.",
+              "type": "string"
+            },
+            "end_time": {
+              "description": "Optional. RFC3339 end time (UTC). Defaults to now if omitted.",
+              "type": "string"
+            },
+            "environment": {
+              "description": "Optional. Environment name.",
+              "type": "string"
+            },
+            "limit": {
+              "description": "Optional. Max number of log entries (1-10000).",
+              "type": "integer"
+            },
+            "log_levels": {
+              "description": "Optional. Filter by log levels (DEBUG, INFO, WARN, ERROR).",
+              "items": { "type": "string" },
+              "type": "array"
+            },
+            "org_name": {
+              "description": "Required. Organization name.",
+              "type": "string"
+            },
+            "project_name": {
+              "description": "Required. Project name where the agent exists.",
+              "type": "string"
+            },
+            "search_phrase": {
+              "description": "Optional. Search phrase to filter logs by content.",
+              "type": "string"
+            },
+            "sort_order": {
+              "description": "Optional. Sort order: asc or desc.",
+              "type": "string"
+            },
+            "start_time": {
+              "description": "Optional. RFC3339 start time (UTC). Defaults to last 24h if omitted.",
+              "type": "string"
+            }
+          },
+          "required": ["project_name", "agent_name"],
+          "type": "object"
+        },
+        "name": "get_runtime_logs"
+      },
+      {
+        "description": "Fetch a single trace by trace_id for a specific agent. Returns full trace details and spans.",
+        "inputSchema": {
+          "properties": {
+            "agent_name": {
+              "description": "Required. Agent name.",
+              "type": "string"
+            },
+            "environment": {
+              "description": "Optional. Environment name.",
+              "type": "string"
+            },
+            "org_name": {
+              "description": "Required. Organization name.",
+              "type": "string"
+            },
+            "project_name": {
+              "description": "Required. Project name.",
+              "type": "string"
+            },
+            "trace_id": {
+              "description": "Required. Trace ID to fetch.",
+              "type": "string"
+            }
+          },
+          "required": ["project_name", "agent_name", "trace_id"],
+          "type": "object"
+        },
+        "name": "get_trace_details"
+      },
+      {
+        "description": "List recent traces for an agent in a time window  with span details (detailed view)",
+        "inputSchema": {
+          "properties": {
+            "agent_name": {
+              "description": "Required. Agent name to export traces for.",
+              "type": "string"
+            },
+            "end_time": {
+              "description": "Optional. RFC3339 end time (UTC). Defaults to now.",
+              "type": "string"
+            },
+            "environment": {
+              "description": "Optional. Environment name.",
+              "type": "string"
+            },
+            "limit": {
+              "description": "Optional. Max number of traces to return (1-1000).",
+              "minimum": 1,
+              "type": "integer"
+            },
+            "offset": {
+              "description": "Optional. Pagination offset (>= 0).",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "org_name": {
+              "description": "Required. Organization name.",
+              "type": "string"
+            },
+            "project_name": {
+              "description": "Required. Project name where the agent exists.",
+              "type": "string"
+            },
+            "sort_order": {
+              "description": "Optional. Sort order: desc (newest first) or asc.",
+              "type": "string"
+            },
+            "start_time": {
+              "description": "Optional. RFC3339 start time (UTC). Defaults to last 24h.",
+              "type": "string"
+            }
+          },
+          "required": ["project_name", "agent_name"],
+          "type": "object"
+        },
+        "name": "get_traces"
+      },
+      {
+        "description": "List agents within a specific project.",
+        "inputSchema": {
+          "properties": {
+            "limit": {
+              "description": "Optional. Max agents to return (default 10, min 1, max 50).",
+              "type": "integer"
+            },
+            "offset": {
+              "description": "Optional. Pagination offset (default 0, min 0).",
+              "type": "integer"
+            },
+            "org_name": {
+              "description": "Optional. Organization name.",
+              "type": "string"
+            },
+            "project_name": {
+              "description": "Required. Project name to list agents from.",
+              "type": "string"
+            }
+          },
+          "required": ["project_name"],
+          "type": "object"
+        },
+        "name": "list_agents"
+      },
+      {
+        "description": "List current builds for a specific agent.",
+        "inputSchema": {
+          "properties": {
+            "agent_name": {
+              "description": "Required. Agent name to list builds for.",
+              "type": "string"
+            },
+            "limit": {
+              "description": "Optional. Max builds to return (default 10, min 1, max 50).",
+              "type": "integer"
+            },
+            "offset": {
+              "description": "Optional. Pagination offset (default 0, min 0).",
+              "type": "integer"
+            },
+            "org_name": {
+              "description": "Required. Organization name.",
+              "type": "string"
+            },
+            "project_name": {
+              "description": "Required. Project name where the agent exists.",
+              "type": "string"
+            }
+          },
+          "required": ["project_name", "agent_name"],
+          "type": "object"
+        },
+        "name": "list_builds"
+      },
+      {
+        "description": "List current deployments for an agent per environment.",
+        "inputSchema": {
+          "properties": {
+            "agent_name": {
+              "description": "Required. Agent name to check deployments for.",
+              "type": "string"
+            },
+            "org_name": {
+              "description": "Required. Organization name.",
+              "type": "string"
+            },
+            "project_name": {
+              "description": "Required. Project name where the agent exists.",
+              "type": "string"
+            }
+          },
+          "required": ["project_name", "agent_name"],
+          "type": "object"
+        },
+        "name": "list_deployments"
+      },
+      {
+        "description": "List all projects registered within an organization.",
+        "inputSchema": {
+          "properties": {
+            "limit": {
+              "description": "Optional. Max projects to return (default 10, min 1, max 50).",
+              "type": "integer"
+            },
+            "offset": {
+              "description": "Optional. Pagination offset (default 0, min 0).",
+              "type": "integer"
+            },
+            "org_name": {
+              "description": "Required. Organization name.",
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "name": "list_project"
+      },
+      {
+        "description": "List (project, agent) pairs registered within an organization.",
+        "inputSchema": {
+          "properties": {
+            "agent_limit": {
+              "description": "Optional. Agent pagination limit (1-50).",
+              "type": "integer"
+            },
+            "agent_offset": {
+              "description": "Optional. Agent pagination offset (>= 0).",
+              "type": "integer"
+            },
+            "agent_search": {
+              "description": "Optional. Filter agent names by substring (case-insensitive).",
+              "type": "string"
+            },
+            "org_name": {
+              "description": "Optional. Organization name.",
+              "type": "string"
+            },
+            "project_limit": {
+              "description": "Optional. Project pagination limit (1-50).",
+              "type": "integer"
+            },
+            "project_offset": {
+              "description": "Optional. Project pagination offset (>= 0).",
+              "type": "integer"
+            },
+            "project_search": {
+              "description": "Optional. Filter project names by substring (case-insensitive).",
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "name": "list_project_agent_pairs"
+      },
+      {
+        "description": "List recent traces for an agent in a time window (summary view).",
+        "inputSchema": {
+          "properties": {
+            "agent_name": {
+              "description": "Required. Agent name to check traces for.",
+              "type": "string"
+            },
+            "end_time": {
+              "description": "Optional. RFC3339 end time (UTC). Defaults to now.",
+              "type": "string"
+            },
+            "environment": {
+              "description": "Optional. Environment name.",
+              "type": "string"
+            },
+            "include_io": {
+              "description": "Optional. Include input/output fields in the trace list.",
+              "type": "boolean"
+            },
+            "limit": {
+              "description": "Optional. Max number of traces to return (1-100).",
+              "maximum": 100,
+              "minimum": 1,
+              "type": "integer"
+            },
+            "offset": {
+              "description": "Optional. Pagination offset (>= 0).",
+              "minimum": 0,
+              "type": "integer"
+            },
+            "org_name": {
+              "description": "optional. Organization name.",
+              "type": "string"
+            },
+            "project_name": {
+              "description": "Required. Project name where the agent exists.",
+              "type": "string"
+            },
+            "sort_order": {
+              "description": "Optional. Sort order: desc (newest first) or asc.",
+              "type": "string"
+            },
+            "start_time": {
+              "description": "Optional. RFC3339 start time (UTC). Defaults to last 24h.",
+              "type": "string"
+            }
+          },
+          "required": ["project_name", "agent_name"],
+          "type": "object"
+        },
+        "name": "list_traces"
+      }
+    ]
+  }
+}
