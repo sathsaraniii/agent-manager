@@ -3,8 +3,8 @@ package mcp_handlers
 import (
 	"context"
 	"fmt"
+	"time"
 
-	occlient "github.com/wso2/agent-manager/agent-manager-service/clients/openchoreosvc/client"
 	traceobserversvc "github.com/wso2/agent-manager/agent-manager-service/clients/traceobserversvc"
 	"github.com/wso2/agent-manager/agent-manager-service/models"
 	"github.com/wso2/agent-manager/agent-manager-service/services"
@@ -39,94 +39,69 @@ func (h *RuntimeLogHandler) GetRuntimeLogs(ctx context.Context, orgName string, 
 
 // TraceHandler bridges MCP trace tools to the trace-observer service.
 type TraceHandler struct {
-	ocClient    occlient.OpenChoreoClient
 	traceClient traceobserversvc.TraceObserverClient
 }
 
-func NewTraceHandler(ocClient occlient.OpenChoreoClient, traceClient traceobserversvc.TraceObserverClient) *TraceHandler {
-	return &TraceHandler{ocClient: ocClient, traceClient: traceClient}
+func NewTraceHandler(traceClient traceobserversvc.TraceObserverClient) *TraceHandler {
+	return &TraceHandler{traceClient: traceClient}
 }
 
 func (h *TraceHandler) ListTraces(ctx context.Context, orgName string, projectName string, agentName string, environment string, startTime string, endTime string, sortOrder string, limit int, offset int) (map[string]any, error) {
-	componentUid, environmentUid, err := h.resolveComponentEnvironment(ctx, orgName, projectName, agentName, environment)
-	if err != nil {
-		return nil, err
+	if h.traceClient == nil {
+		return nil, fmt.Errorf("trace observer client is not configured")
 	}
 
 	params := traceobserversvc.TraceListParams{
-		ComponentUid:   componentUid,
-		EnvironmentUid: environmentUid,
-		StartTime:      startTime,
-		EndTime:        endTime,
-		Limit:          limit,
-		Offset:         offset,
-		SortOrder:      sortOrder,
+		Organization: orgName,
+		Project:      projectName,
+		Component:    agentName,
+		Environment:  environment,
+		StartTime:    startTime,
+		EndTime:      endTime,
+		Limit:        limit,
+		Offset:       offset,
+		SortOrder:    sortOrder,
 	}
 
 	return h.traceClient.ListTraces(ctx, params)
 }
 
 func (h *TraceHandler) ExportTraces(ctx context.Context, orgName string, projectName string, agentName string, environment string, startTime string, endTime string, sortOrder string, limit int, offset int) (map[string]any, error) {
-	componentUid, environmentUid, err := h.resolveComponentEnvironment(ctx, orgName, projectName, agentName, environment)
-	if err != nil {
-		return nil, err
+	if h.traceClient == nil {
+		return nil, fmt.Errorf("trace observer client is not configured")
 	}
 
 	params := traceobserversvc.TraceListParams{
-		ComponentUid:   componentUid,
-		EnvironmentUid: environmentUid,
-		StartTime:      startTime,
-		EndTime:        endTime,
-		Limit:          limit,
-		Offset:         offset,
-		SortOrder:      sortOrder,
+		Organization: orgName,
+		Project:      projectName,
+		Component:    agentName,
+		Environment:  environment,
+		StartTime:    startTime,
+		EndTime:      endTime,
+		Limit:        limit,
+		Offset:       offset,
+		SortOrder:    sortOrder,
 	}
 
 	return h.traceClient.ExportTraces(ctx, params)
 }
 
 func (h *TraceHandler) GetTraceDetails(ctx context.Context, orgName string, projectName string, agentName string, traceID string, environment string) (map[string]any, error) {
-	componentUid, environmentUid, err := h.resolveComponentEnvironment(ctx, orgName, projectName, agentName, environment)
-	if err != nil {
-		return nil, err
+	if h.traceClient == nil {
+		return nil, fmt.Errorf("trace observer client is not configured")
 	}
 
+	now := time.Now().UTC()
 	params := traceobserversvc.TraceDetailsParams{
-		TraceID:        traceID,
-		ComponentUid:   componentUid,
-		EnvironmentUid: environmentUid,
+		TraceID:      traceID,
+		Organization: orgName,
+		Project:      projectName,
+		Component:    agentName,
+		Environment:  environment,
+		StartTime:    now.AddDate(0, 0, -7).Format(time.RFC3339),
+		EndTime:      now.Format(time.RFC3339),
+		Limit:        1000, // fetch all spans for the trace
 	}
 
 	return h.traceClient.GetTrace(ctx, params)
-}
-
-func (h *TraceHandler) resolveComponentEnvironment(ctx context.Context, orgName, projectName, agentName, environment string) (string, string, error) {
-	if h == nil || h.ocClient == nil {
-		return "", "", fmt.Errorf("openchoreo client is not configured")
-	}
-	if h.traceClient == nil {
-		return "", "", fmt.Errorf("trace observer client is not configured")
-	}
-
-	// Validate org and project exist
-	if _, err := h.ocClient.GetOrganization(ctx, orgName); err != nil {
-		return "", "", err
-	}
-	if _, err := h.ocClient.GetProject(ctx, orgName, projectName); err != nil {
-		return "", "", err
-	}
-
-	// Resolve component UID
-	agent, err := h.ocClient.GetComponent(ctx, orgName, projectName, agentName)
-	if err != nil {
-		return "", "", err
-	}
-
-	// Resolve environment UID
-	env, err := h.ocClient.GetEnvironment(ctx, orgName, environment)
-	if err != nil {
-		return "", "", err
-	}
-
-	return agent.UUID, env.UUID, nil
 }

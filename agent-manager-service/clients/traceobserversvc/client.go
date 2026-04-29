@@ -55,10 +55,12 @@ func NewTraceObserverClient(cfg *Config) (TraceObserverClient, error) {
 
 func (c *traceObserverClient) ListTraces(ctx context.Context, params TraceListParams) (map[string]any, error) {
 	query := map[string]string{
-		"componentUid":   params.ComponentUid,
-		"environmentUid": params.EnvironmentUid,
-		"startTime":      params.StartTime,
-		"endTime":        params.EndTime,
+		"organization": params.Organization,
+		"project":      params.Project,
+		"agent":        params.Component,
+		"environment":  params.Environment,
+		"startTime":    params.StartTime,
+		"endTime":      params.EndTime,
 	}
 	if params.Limit > 0 {
 		query["limit"] = strconv.Itoa(params.Limit)
@@ -75,10 +77,12 @@ func (c *traceObserverClient) ListTraces(ctx context.Context, params TraceListPa
 
 func (c *traceObserverClient) ExportTraces(ctx context.Context, params TraceListParams) (map[string]any, error) {
 	query := map[string]string{
-		"componentUid":   params.ComponentUid,
-		"environmentUid": params.EnvironmentUid,
-		"startTime":      params.StartTime,
-		"endTime":        params.EndTime,
+		"organization": params.Organization,
+		"project":      params.Project,
+		"agent":        params.Component,
+		"environment":  params.Environment,
+		"startTime":    params.StartTime,
+		"endTime":      params.EndTime,
 	}
 	if params.Limit > 0 {
 		query["limit"] = strconv.Itoa(params.Limit)
@@ -95,9 +99,18 @@ func (c *traceObserverClient) ExportTraces(ctx context.Context, params TraceList
 
 func (c *traceObserverClient) GetTrace(ctx context.Context, params TraceDetailsParams) (map[string]any, error) {
 	query := map[string]string{
-		"traceId":        params.TraceID,
-		"componentUid":   params.ComponentUid,
-		"environmentUid": params.EnvironmentUid,
+		"organization": params.Organization,
+		"startTime":    params.StartTime,
+		"endTime":      params.EndTime,
+	}
+	if strings.TrimSpace(params.Project) != "" {
+		query["project"] = params.Project
+	}
+	if strings.TrimSpace(params.Component) != "" {
+		query["agent"] = params.Component
+	}
+	if strings.TrimSpace(params.Environment) != "" {
+		query["environment"] = params.Environment
 	}
 	if strings.TrimSpace(params.SortOrder) != "" {
 		query["sortOrder"] = params.SortOrder
@@ -105,21 +118,9 @@ func (c *traceObserverClient) GetTrace(ctx context.Context, params TraceDetailsP
 	if params.Limit > 0 {
 		query["limit"] = strconv.Itoa(params.Limit)
 	}
-	if strings.TrimSpace(params.StartTime) != "" {
-		query["startTime"] = params.StartTime
-	}
-	if strings.TrimSpace(params.EndTime) != "" {
-		query["endTime"] = params.EndTime
-	}
-	if params.ParentSpan != nil {
-		if *params.ParentSpan {
-			query["parentSpan"] = "true"
-		} else {
-			query["parentSpan"] = "false"
-		}
-	}
 
-	return c.doGetMap(ctx, "traceobserversvc.GetTrace", "/api/v1/trace", query)
+	path := "/api/v1/traces/" + params.TraceID + "/spans"
+	return c.doGetMap(ctx, "traceobserversvc.GetTrace", path, query)
 }
 
 func (c *traceObserverClient) doGetMap(ctx context.Context, name, path string, query map[string]string) (map[string]any, error) {

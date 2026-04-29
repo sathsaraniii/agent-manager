@@ -177,7 +177,7 @@ func (t *Toolsets) registerAgentTools(server *gomcp.Server) {
 				"required": []string{"key", "value"},
 			}),
 		}, []string{"project_name", "display_name", "repository_url", "branch", "app_path", "dockerfile_path", "interface_type", "env"}),
-	}, createInternalAgentDocker(t.AgentToolset))
+	}, withToolLogging("create_internal_agent_docker", createInternalAgentDocker(t.AgentToolset)))
 
 	gomcp.AddTool(server, &gomcp.Tool{
 		Name: "create_external_agent",
@@ -190,7 +190,7 @@ func (t *Toolsets) registerAgentTools(server *gomcp.Server) {
 			"description":  stringProperty("Optional. Short description about what the agent does."),
 			"language":     stringProperty("Required. Agent language for setup guide (python or ballerina)."),
 		}, []string{"project_name", "display_name", "language"}),
-	}, createExternalAgent(t.AgentToolset))
+	}, withToolLogging("create_external_agent", createExternalAgent(t.AgentToolset)))
 
 	gomcp.AddTool(server, &gomcp.Tool{
 		Name: "list_agents",
@@ -202,7 +202,7 @@ func (t *Toolsets) registerAgentTools(server *gomcp.Server) {
 			"limit":        intProperty(fmt.Sprintf("Optional. Max agents to return (default %d, min %d, max %d).", utils.DefaultLimit, utils.MinLimit, utils.MaxLimit)),
 			"offset":       intProperty(fmt.Sprintf("Optional. Pagination offset (default %d, min %d).", utils.DefaultOffset, utils.MinOffset)),
 		}, []string{"project_name"}),
-	}, listAgents(t.AgentToolset))
+	}, withToolLogging("list_agents", listAgents(t.AgentToolset)))
 
 	if t.ProjectToolset != nil {
 		gomcp.AddTool(server, &gomcp.Tool{
@@ -218,7 +218,7 @@ func (t *Toolsets) registerAgentTools(server *gomcp.Server) {
 				"agent_limit":    intProperty("Optional. Agent pagination limit (1-50)."),
 				"agent_offset":   intProperty("Optional. Agent pagination offset (>= 0)."),
 			}, nil),
-		}, listProjectAgentPairs(t.AgentToolset, t.ProjectToolset))
+		}, withToolLogging("list_project_agent_pairs", listProjectAgentPairs(t.AgentToolset, t.ProjectToolset)))
 	}
 }
 

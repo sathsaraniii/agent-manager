@@ -323,7 +323,7 @@ func (t *Toolsets) registerTraceTools(server *gomcp.Server) {
 		Description: "List recent traces for an agent in a time window with full span details. " +
 			"A trace is a single end-to-end execution record for an agent which contains spans that record the internal steps of an execution, such as agent, tool, retriever, or LLM activity.",
 		InputSchema: createSchema(map[string]any{
-			"org_name":     stringProperty("Required. Organization name."),
+			"org_name":     stringProperty("optional. Organization name."),
 			"project_name": stringProperty("Required. Project name where the agent exists."),
 			"agent_name":   stringProperty("Required. Agent name to export traces for."),
 			"environment":  stringProperty("Optional. Environment name."),
@@ -695,20 +695,19 @@ func reduceTraceDetailsRaw(resp map[string]any, traceID string) map[string]any {
 				parent = asString(v)
 			}
 			reducedSpans = append(reducedSpans, map[string]any{
-				"spanId":          asString(spanMap["spanId"]),
-				"parentSpanId":    parent,
-				"name":            asString(spanMap["name"]),
-				"durationInNanos": spanMap["durationInNanos"],
-				"ampAttributes":   spanMap["ampAttributes"],
+				"spanId":       asString(spanMap["spanId"]),
+				"parentSpanId": parent,
+				"spanName":     asString(spanMap["spanName"]),
+				"startTime":    spanMap["startTime"],
+				"endTime":      spanMap["endTime"],
+				"durationNs":   spanMap["durationNs"],
 			})
 		}
 	}
 	return map[string]any{
-		"traceId":    traceID,
-		"spanCount":  resp["totalCount"],
-		"tokenUsage": resp["tokenUsage"],
-		"status":     resp["status"],
-		"spans":      reducedSpans,
+		"traceId":   traceID,
+		"spanCount": resp["totalCount"],
+		"spans":     reducedSpans,
 	}
 }
 

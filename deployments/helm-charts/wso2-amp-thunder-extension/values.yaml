@@ -124,7 +124,7 @@ thunder:
       authorizationCode:
         validityPeriod: 600
       dcr:
-        insecure: false
+        insecure: true
     consent:
       enabled: true
       baseUrl: "http://localhost:9090/api/v1"

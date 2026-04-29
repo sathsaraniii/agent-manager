@@ -81,9 +81,9 @@ func wrapToolError(toolName string, err error) error {
 // custom logging layer for mcp tools
 func withToolLogging[T any](toolName string, handler func(context.Context, *gomcp.CallToolRequest, T) (*gomcp.CallToolResult, any, error)) func(context.Context, *gomcp.CallToolRequest, T) (*gomcp.CallToolResult, any, error) {
 	return func(ctx context.Context, req *gomcp.CallToolRequest, input T) (*gomcp.CallToolResult, any, error) {
+		log := reqlogger.GetLogger(ctx)
 		start := time.Now()
 		result, meta, err := handler(ctx, req, input)
-		log := reqlogger.GetLogger(ctx)
 		duration := time.Since(start).Milliseconds()
 		if err != nil {
 			log.Error("mcp tool failed", "tool", toolName, "duration_ms", duration, "error", err)

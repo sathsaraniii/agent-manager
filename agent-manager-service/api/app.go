@@ -43,7 +43,7 @@ func MakeHTTPHandler(params *wiring.AppParams) http.Handler {
 	projectHandler := mcphandlers.NewProjectHandler(params.InfraResourceManager)
 	buildHandler := mcphandlers.NewBuildHandler(params.AgentManagerService)
 	deploymentHandler := mcphandlers.NewDeploymentHandler(params.AgentManagerService)
-	traceHandler := mcphandlers.NewTraceHandler(params.OpenChoreoClient, params.TraceObserverClient)
+	traceHandler := mcphandlers.NewTraceHandler(params.TraceObserverClient)
 	observerHandler := mcphandlers.NewObserverHandler(params.AgentManagerService)
 	evaluatorHandler := mcphandlers.NewEvaluatorHandler(params.EvaluatorManagerService)
 	monitorHandler := mcphandlers.NewMonitorHandler(params.MonitorManagerService)
@@ -64,6 +64,7 @@ func MakeHTTPHandler(params *wiring.AppParams) http.Handler {
 	mcpHandler = params.AuthMiddleware(mcpHandler)
 	mcpHandler = mcpmiddleware.Auth401Interceptor()(mcpHandler)
 	mcpHandler = logger.RequestLogger()(mcpHandler)
+	mcpHandler = middleware.AddCorrelationID()(mcpHandler)
 	mux.Handle("/mcp", mcpHandler)
 
 	// Register JWKS endpoint at root level (no authentication required)

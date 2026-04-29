@@ -30,8 +30,12 @@ func oauthProtectedResourceMetadata(w http.ResponseWriter, r *http.Request) {
 		ScopesSupported:        []string{},
 	}
 
-	if cfg != nil && len(cfg.KeyManagerConfigurations.Issuer) > 0 {
-		metadata.AuthorizationServers = cfg.KeyManagerConfigurations.Issuer
+	if cfg != nil {
+		for _, iss := range cfg.KeyManagerConfigurations.Issuer {
+			if strings.HasPrefix(iss, "http://") || strings.HasPrefix(iss, "https://") {
+				metadata.AuthorizationServers = append(metadata.AuthorizationServers, iss)
+			}
+		}
 	}
 
 	data, err := json.Marshal(metadata)
