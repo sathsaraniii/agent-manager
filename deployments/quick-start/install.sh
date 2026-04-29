@@ -1191,11 +1191,30 @@ if helm upgrade --install observability-metrics-prometheus \
     --create-namespace \
     --namespace openchoreo-observability-plane \
     --version 0.2.4 \
+    --set adapter.image.tag=0.2.4 \
     --timeout 10m; then
     log_success "observability-metrics-prometheus installed successfully"
 else
     log_error "Failed to install observability-metrics-prometheus (non-fatal)"
 fi
+
+# # Install observability-metrics-prometheus
+# log_info "Installing observability-metrics-prometheus..."
+# if helm upgrade --install observability-metrics-prometheus \
+#     oci://ghcr.io/openchoreo/helm-charts/observability-metrics-prometheus \
+#     --create-namespace \
+#     --namespace openchoreo-observability-plane \
+#     --version 0.2.4 \
+#     --timeout 10m; then
+#     # Chart v0.2.x is missing required env vars; patch the deployment after install
+#     kubectl set env deployment/metrics-adapter-prometheus \
+#         OBSERVER_INTERNAL_URL="http://observer-internal.openchoreo-observability-plane.svc.cluster.local:8081" \
+#         PROMETHEUS_ADDRESS="http://openchoreo-observability-prometheus.openchoreo-observability-plane.svc.cluster.local:9091" \
+#         -n openchoreo-observability-plane
+#     log_success "observability-metrics-prometheus installed successfully"
+# else
+#     log_error "Failed to install observability-metrics-prometheus (non-fatal)"
+# fi
 
 # Install observability-traces-opensearch
 log_info "Enabling opensearch based tracing module..."
