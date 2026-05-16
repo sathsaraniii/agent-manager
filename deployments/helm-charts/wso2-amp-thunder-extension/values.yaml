@@ -258,8 +258,8 @@ thunder:
         - "ouId"
     # AMP MCP Client configuration (public PKCE client for interactive login)
     amMcpClient:
-      clientId: "am-mcp"
-      name: "AMP MCP"
+      clientId: "am-mcp-user"
+      name: "AMP MCP User Client"
       description: "AMP MCP application for interactive user login"
       redirectUris:
         - "http://127.0.0.1:33418/callback"
@@ -286,18 +286,16 @@ thunder:
     amMcpServerClient:
       clientId: "am-mcp-service"
       clientSecret: "am-mcp-service-secret"
-      name: "AMP MCP service Client"
+      name: "AMP MCP Service Client"
       description: "Confidential client for AI agent MCP access via client_credentials"
       grantTypes:
         - "client_credentials"
-        # ?????
       # allowedUserTypes:
       #   - "engineer"
-         #????
       tokenEndpointAuthMethod: "client_secret_basic"
       pkceRequired: false
       publicClient: false
-      accessTokenValidityPeriod: 86400
+      accessTokenValidityPeriod: 864000
       # userAttributes:
       #   - "given_name"
       #   - "family_name"

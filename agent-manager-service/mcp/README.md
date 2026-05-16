@@ -8,6 +8,26 @@ The server speaks MCP over Streamable HTTP and is protected by the existing
 JWT middleware, which means every tool call goes through the standard OAuth
 2.0 authorization-code + PKCE flow against Thunder.
 
+## Authentication Methods
+
+The MCP server supports two OAuth 2.0 authentication methods:
+
+### 1. Browser-based (Authorization Code + PKCE)
+
+For interactive AI assistants like Claude Code that can open a browser.
+
+- **Client:** `am-mcp-user` (public, PKCE required)
+- **Grant:** authorization_code + refresh_token
+- **When to use:** Claude Code, Codex, and other browser-capable tools
+
+### 2. Client Credentials
+
+For headless AI agents and server-to-server access.
+
+- **Client:** `am-mcp-service` (confidential)
+- **Grant:** client_credentials
+- **When to use:** Agents running in containers, CI/CD workflows, or backend services
+
 ## Quick start with Claude Code
 
 1. **Make sure Agent Manager is running** — `make dev-up` brings up the
@@ -17,11 +37,11 @@ JWT middleware, which means every tool call goes through the standard OAuth
 
    ```bash
    claude mcp add --transport http agent-manager http://localhost:9000/mcp \
-     --client-id am-mcp \
+     --client-id am-mcp-user \
      --callback-port 33418
    ```
 
-   - `--client-id am-mcp` matches the OAuth client registered in Thunder
+   - `--client-id am-mcp-user` matches the OAuth client registered in Thunder
      (provisioned automatically by the `wso2-amp-thunder-extension` chart).
    - `--callback-port 33418` pins Claude Code's local OAuth listener to a
      fixed port that matches the redirect URI registered in Thunder.
@@ -32,6 +52,30 @@ JWT middleware, which means every tool call goes through the standard OAuth
    until it expires.
 
 That's it — Claude Code now sees the platform's tools alongside its own.
+
+## Quick start with Client Credentials
+
+For agents or services that cannot perform browser-based OAuth:
+
+1. **Get a token** from Thunder using the service client:
+
+   ```bash
+   TOKEN=$(curl -s -X POST "http://thunder.amp.localhost:8080/oauth2/token" \
+     -H "Content-Type: application/x-www-form-urlencoded" \
+     -u "am-mcp-service:am-mcp-service-secret" \
+     -d "grant_type=client_credentials" | jq -r .access_token)
+   ```
+
+2. **Make MCP calls** with the token in the Authorization header:
+
+   ```bash
+   curl -X POST "http://localhost:9000/mcp" \
+     -H "Authorization: Bearer $TOKEN" \
+     -H "Content-Type: application/json" \
+     -d '{"jsonrpc":"2.0","id":1,"method":"initialize",...}'
+   ```
+
+The token is valid for 10 days (864000 seconds) and can be cached and reused across multiple requests.
 
 ## Available tools
 
