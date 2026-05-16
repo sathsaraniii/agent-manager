@@ -45,12 +45,19 @@ const (
 	NoInstance           = "NO_INSTANCE"
 	NoOrg                = "NO_ORG"
 	NoProject            = "NO_PROJECT"
+	NoAgent              = "NO_AGENT"
+	NoEnvironment        = "NO_ENVIRONMENT"
+	NotLinked            = "NOT_LINKED"
+	Internal             = "INTERNAL"
 	ConfirmationRequired = "CONFIRMATION_REQUIRED"
 	InvalidFlag          = "INVALID_FLAG"
 	Unauthorized         = "UNAUTHORIZED"
+	Forbidden            = "FORBIDDEN"
+	ServerError          = "SERVER_ERROR"
 	ServerInvalid        = "SERVER_RESPONSE_INVALID"
 	NotFound             = "NOT_FOUND"
 	Validation           = "VALIDATION"
+	BuildNotDeployable   = "BUILD_NOT_DEPLOYABLE"
 )
 
 // CLIError is both the wire body of an error envelope and a Go error value.

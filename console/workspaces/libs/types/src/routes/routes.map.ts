@@ -60,7 +60,7 @@ export const rootRouteMap: AppRoute = {
                             index: true,
                             children: {},
                         },
-                        view:{
+                        view: {
                             path: 'view/:providerId',
                             index: true,
                             children: {
@@ -70,6 +70,38 @@ export const rootRouteMap: AppRoute = {
                                     children: {},
                                 },
                             },
+                        }
+                    },
+                },
+                evaluators: {
+                    path: 'evaluators',
+                    index: true,
+                    children: {
+                        create: {
+                            path: 'create',
+                            index: true,
+                            children: {},
+                        },
+                        view: {
+                            path: 'view/:evaluatorId',
+                            index: true,
+                            children: {},
+                        },
+                        edit: {
+                            path: 'edit/:evaluatorId',
+                            index: true,
+                            children: {},
+                        },
+                    },
+                },
+                catalog: {
+                    path: 'catalog',
+                    index: true,
+                    children: {
+                        kindDetails: {
+                            path: "kind/:kindId",
+                            index: true,
+                            children: {}
                         }
                     },
                 },
@@ -89,31 +121,27 @@ export const rootRouteMap: AppRoute = {
                                 create: {
                                     path: 'create',
                                     index: true,
-                                    children: {},
+                                    children: {
+                                        catalog: {
+                                            path: 'catalog',
+                                            index: true,
+                                            children: {
+                                                withKind: {
+                                                    path: ':kindId',
+                                                    index: true,
+                                                    children: {},
+                                                },
+                                            },
+                                        },
+                                        source: {
+                                            path: 'source',
+                                            index: true,
+                                            children: {},
+                                        },
+                                    },
                                 },
                                 connect: {
                                     path: 'connect',
-                                    index: true,
-                                    children: {},
-                                },
-                            },
-                        },
-                        evaluators: {
-                            path: 'evaluators',
-                            index: true,
-                            children: {
-                                create: {
-                                    path: 'create',
-                                    index: true,
-                                    children: {},
-                                },
-                                view: {
-                                    path: 'view/:evaluatorId',
-                                    index: true,
-                                    children: {},
-                                },
-                                edit: {
-                                    path: 'edit/:evaluatorId',
                                     index: true,
                                     children: {},
                                 },
@@ -160,31 +188,32 @@ export const rootRouteMap: AppRoute = {
                                     index: true,
                                     children: {},
                                 },
+                                publish: {
+                                    path: "publish",
+                                    index: true,
+                                    children: {
+                                        createNewVersion: {
+                                            path: 'create-new-version',
+                                            index: true,
+                                            children: {},
+                                        },
+                                        versionDetails: {
+                                            path: 'version-details/:versionId',
+                                            index: true,
+                                            children: {
+                                                edit:{
+                                                    path: 'edit',
+                                                    index: true,
+                                                    children: {},
+                                                }
+                                            },
+                                        },
+                                    },
+                                },
                                 evaluation: {
                                     path: 'evaluation',
                                     index: true,
                                     children: {
-                                        evaluators: {
-                                            path: 'evaluators',
-                                            index: true,
-                                            children: {
-                                                create: {
-                                                    path: 'create',
-                                                    index: true,
-                                                    children: {},
-                                                },
-                                                view: {
-                                                    path: 'view/:evaluatorId',
-                                                    index: true,
-                                                    children: {},
-                                                },
-                                                edit: {
-                                                    path: 'edit/:evaluatorId',
-                                                    index: true,
-                                                    children: {},
-                                                },
-                                            },
-                                        },
                                         monitor: {
                                             path: 'monitor',
                                             index: true,
@@ -220,6 +249,11 @@ export const rootRouteMap: AppRoute = {
                                     children: {
                                         deploy: {
                                             path: 'deploy',
+                                            index: true,
+                                            children: {},
+                                        },
+                                        security: {
+                                            path: "security",
                                             index: true,
                                             children: {},
                                         },

@@ -36,7 +36,8 @@ type UseOptions struct {
 }
 
 type UseResult struct {
-	Instance string `json:"instance"`
+	Instance     string `json:"instance"`
+	ClearedLinks int    `json:"cleared_links,omitempty"`
 }
 
 func NewUseCmd(f *cmdutil.Factory) *cobra.Command {
@@ -74,6 +75,7 @@ func runUse(o *UseOptions) error {
 		return render.Error(o.IO, scope, clierr.Newf(clierr.NoInstance, "instance %q not found in config", o.Name))
 	}
 
+	cleared := cfg.ClearLinksIfSwitching(o.Name)
 	cfg.CurrentInstance = o.Name
 	if err := cfg.Save(); err != nil {
 		return render.Error(o.IO, scope, clierr.Newf(clierr.ConfigSaveFailed, "save config: %v", err))
@@ -82,10 +84,13 @@ func runUse(o *UseOptions) error {
 	scope.Instance = o.Name
 
 	if o.IO.JSON {
-		return render.JSONSuccess(o.IO, scope, UseResult{Instance: o.Name})
+		return render.JSONSuccess(o.IO, scope, UseResult{Instance: o.Name, ClearedLinks: cleared})
 	}
 
 	cs := o.IO.StderrColorScheme()
 	fmt.Fprintf(o.IO.ErrOut, "%s Switched to instance %s\n", cs.SuccessIcon(), o.Name)
+	if cleared > 0 {
+		fmt.Fprintf(o.IO.ErrOut, "%s Cleared %d linked project(s). Run 'amctl link' to re-link.\n", cs.SuccessIcon(), cleared)
+	}
 	return nil
 }

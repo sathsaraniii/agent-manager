@@ -18,6 +18,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 
 	"github.com/wso2/agent-manager/cli/pkg/cmd/agent"
 	amcontext "github.com/wso2/agent-manager/cli/pkg/cmd/context"
@@ -46,5 +47,27 @@ func NewRootCmd(f *cmdutil.Factory) (*cobra.Command, error) {
 	cmd.AddCommand(project.NewProjectCmd(f))
 	cmd.AddCommand(NewVersionCmd())
 
+	linkAlias := amcontext.NewLinkCmd(f)
+	linkAlias.Hidden = true
+	unlinkAlias := amcontext.NewUnlinkCmd(f)
+	unlinkAlias.Hidden = true
+	cmd.AddCommand(linkAlias)
+	cmd.AddCommand(unlinkAlias)
+	disableFileCompletion(cmd)
+
 	return cmd, nil
+}
+
+func disableFileCompletion(cmd *cobra.Command) {
+	if cmd.ValidArgsFunction == nil {
+		cmd.ValidArgsFunction = cobra.NoFileCompletions
+	}
+	cmd.Flags().VisitAll(func(f *pflag.Flag) {
+		if _, ok := cmd.GetFlagCompletionFunc(f.Name); !ok {
+			_ = cmd.RegisterFlagCompletionFunc(f.Name, cobra.NoFileCompletions)
+		}
+	})
+	for _, child := range cmd.Commands() {
+		disableFileCompletion(child)
+	}
 }

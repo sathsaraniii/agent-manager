@@ -51,12 +51,15 @@ const (
 	PathParamProxyId      = "proxyId"
 	PathParamConfigId     = "configId"
 	PathParamGatewayId    = "gatewayId"
+	PathParamEnvID        = "envID"
 	PathParamDeploymentId = "deploymentId"
 	PathParamMonitorName  = "monitorName"
 	PathParamMonitorId    = "monitorId"
 	PathParamRunId        = "runId"
 	PathParamEvaluatorId  = "evaluatorId"
 	PathParamSecretName   = "secretName"
+	PathParamKindName     = "kindName"
+	PathParamVersionTag   = "versionTag"
 )
 
 // Pagination constants
