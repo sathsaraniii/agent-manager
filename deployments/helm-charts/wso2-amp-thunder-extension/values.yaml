@@ -290,18 +290,10 @@ thunder:
       description: "Confidential client for AI agent MCP access via client_credentials"
       grantTypes:
         - "client_credentials"
-      # allowedUserTypes:
-      #   - "engineer"
       tokenEndpointAuthMethod: "client_secret_basic"
       pkceRequired: false
       publicClient: false
       accessTokenValidityPeriod: 864000
-      # userAttributes:
-      #   - "given_name"
-      #   - "family_name"
-      #   - "username"
-      #   - "groups"
-      #   - "ouId"
     # AMP Console Client configuration
     ampConsoleClient:
       clientId: "amp-console-client"
